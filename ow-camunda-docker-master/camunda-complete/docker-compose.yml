@@ -1,0 +1,30 @@
+version: "3.9"  # optional since v1.27.0
+networks:
+  camunda-net:
+services:
+  camunda-db:
+    image: postgres:14.2
+    restart: always
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    env_file: ./postgres.env
+    networks:
+      - camunda-net
+  camunda-back:
+    image: camunda-back
+    restart: always
+    depends_on:
+      - camunda-db
+    ports:
+      - "8085:8080"
+    networks:
+      - camunda-net
+  camunda-front:
+    image: camunda-front
+    restart: always
+    depends_on:
+      - camunda-back
+    ports:
+      - "8080:80"
+    networks:
+      - camunda-net

@@ -1,0 +1,50 @@
+<div class="mat-typography" fxFill fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="1.5rem">
+  <div>
+    <h1 fxLayoutAlign="center" translate="APP_NAME"></h1>
+    <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="2rem">
+      <h4 class="version">v{{ version }}</h4>
+    </div>
+  </div>
+  <div class="login-container" fxLayout="row" fxLayoutAlign="center">
+    <mat-card class="login-box" fxFlex="90%" fxFlex.gt-md="33%" fxFlex.md="50%" fxFlex.sm="66%">
+      <form (ngSubmit)="login()" [formGroup]="loginForm" novalidate>
+        <div [hidden]="!error || isLoading" class="login-error" translate="user or password incorrect"></div>
+        <br />
+        <div class="login-fields" fxLayout="column">
+          <mat-form-field [hideRequiredMarker]="true">
+            <input
+              [placeholder]="'user' | translate"
+              autocomplete="user"
+              formControlName="user"
+              matInput
+              required
+              type="text"
+            />
+            <mat-error *ngIf="loginForm.controls['user'].invalid && loginForm.controls['user'].touched">
+              <span translate="User is required"></span>
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field [hideRequiredMarker]="false">
+            <input
+              [placeholder]="'Password' | translate"
+              autocomplete="current-password"
+              formControlName="password"
+              matInput
+              required
+              type="password"
+            />
+            <mat-error *ngIf="loginForm.controls['password'].invalid && loginForm.controls['password'].touched">
+              <span translate="Password is required"></span>
+            </mat-error>
+          </mat-form-field>
+          <mat-slide-toggle color="primary" formControlName="remember" translate="Remember me"> </mat-slide-toggle>
+          <br />
+          <button [disabled]="loginForm.invalid || isLoading" color="primary" mat-raised-button type="submit">
+            <app-loader [isLoading]="isLoading" class="inline-loader"></app-loader>
+            <span translate="Login"></span>
+          </button>
+        </div>
+      </form>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0dizemu" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <bpmn:collaboration id="Collaboration_1jyphas">
+    <bpmn:participant id="Participant_087rylc" name="ACME INC" processRef="holidayRequest" />
+  </bpmn:collaboration>
+  <bpmn:process id="holidayRequest" name="Solicitud de Vacaciones" isExecutable="true" camunda:versionTag="0.5.0">
+    <bpmn:laneSet id="LaneSet_0irj7el">
+      <bpmn:lane id="Lane_00elh9q" name="Peticionario">
+        <bpmn:flowNodeRef>start-request</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>fillHolidayForm</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_0aczcvf" name="Responsables">
+        <bpmn:flowNodeRef>validateHolidayForm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_10z1iqd</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_0ogslrl</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_0w02th3" name="Sistema">
+        <bpmn:flowNodeRef>Event_1krynfu</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>sendEmail</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>selectResponsible</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="start-request" camunda:initiator="initiator">
+      <bpmn:outgoing>Flow_0mhfay6</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="fillHolidayForm" name="Rellenar formuario" default="Flow_09heyrt" camunda:formKey="holiday-form" camunda:assignee="${initiator}">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_0mhfay6</bpmn:incoming>
+      <bpmn:incoming>Flow_1ylgxvn</bpmn:incoming>
+      <bpmn:outgoing>Flow_09heyrt</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="validateHolidayForm" name="Validar vacaciones" default="Flow_0sxycjs" camunda:formKey="validate-holiday-form" camunda:assignee="${reponsible}">
+      <bpmn:incoming>Flow_0203h9i</bpmn:incoming>
+      <bpmn:outgoing>Flow_0sxycjs</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0mhfay6" sourceRef="start-request" targetRef="fillHolidayForm" />
+    <bpmn:sequenceFlow id="Flow_09heyrt" sourceRef="fillHolidayForm" targetRef="selectResponsible" />
+    <bpmn:sequenceFlow id="Flow_0sxycjs" sourceRef="validateHolidayForm" targetRef="Gateway_0ogslrl" />
+    <bpmn:sequenceFlow id="Flow_1ylgxvn" name="Solicitud rechazada" sourceRef="Gateway_0ogslrl" targetRef="fillHolidayForm">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${rejected == true} </bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_02c1j3g" name="Solicitud aceptada" sourceRef="Gateway_0ogslrl" targetRef="sendEmail" />
+    <bpmn:sequenceFlow id="Flow_1nl06gx" name="Solicitud denegada" sourceRef="Gateway_0ogslrl" targetRef="Event_10z1iqd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${denied== true} </bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_10z1iqd">
+      <bpmn:incoming>Flow_1nl06gx</bpmn:incoming>
+      <bpmn:terminateEventDefinition id="TerminateEventDefinition_07xtaef" />
+    </bpmn:endEvent>
+    <bpmn:endEvent id="Event_1krynfu">
+      <bpmn:incoming>Flow_1c17nrf</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="sendEmail" name="Enviar correo" default="Flow_1c17nrf">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="to">${mailTo}</camunda:inputParameter>
+            <camunda:inputParameter name="subject">${'RE: '.concat(mailSubject)}</camunda:inputParameter>
+            <camunda:inputParameter name="text">
+              <camunda:script scriptFormat="freemarker">Hola, su solicitud de vacaciones ha sido aprobada.
+
+Podrá disfrutar sus vacaciones en las siguientes fechas:
+
+ - Fecha de inicio: ${startDate}
+ - Fecha de fin: ${endDate}</camunda:script>
+            </camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>mail-send</camunda:connectorId>
+        </camunda:connector>
+        <camunda:executionListener class="net.openwebinars.camunda.execution.StoreHolidays" event="start" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_02c1j3g</bpmn:incoming>
+      <bpmn:outgoing>Flow_1c17nrf</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_1osq9b0">
+        <bpmn:targetRef>DataStoreReference_1tgitw4</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1c17nrf" sourceRef="sendEmail" targetRef="Event_1krynfu" />
+    <bpmn:exclusiveGateway id="Gateway_0ogslrl" default="Flow_02c1j3g">
+      <bpmn:incoming>Flow_0sxycjs</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ylgxvn</bpmn:outgoing>
+      <bpmn:outgoing>Flow_02c1j3g</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1nl06gx</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:dataStoreReference id="DataStoreReference_1tgitw4" />
+    <bpmn:businessRuleTask id="selectResponsible" name="Seleccionar responsable" default="Flow_0203h9i" camunda:resultVariable="reponsible" camunda:decisionRef="holidayResponsible" camunda:mapDecisionResult="singleEntry">
+      <bpmn:incoming>Flow_09heyrt</bpmn:incoming>
+      <bpmn:outgoing>Flow_0203h9i</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:sequenceFlow id="Flow_0203h9i" sourceRef="selectResponsible" targetRef="validateHolidayForm" />
+    <bpmn:textAnnotation id="TextAnnotation_0dnydsp">
+      <bpmn:text>La solicitud de vacaciones puede ser aceptada, rechazada para que el empleado escoja otras fechas o denegada sin posibilidad de un cambio de fecha.</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_00q8h4d" sourceRef="Gateway_0ogslrl" targetRef="TextAnnotation_0dnydsp" />
+    <bpmn:textAnnotation id="TextAnnotation_091eyd6">
+      <bpmn:text>En este punto se almacena el registro de vacaciones del empleado</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_0f8y1iw" sourceRef="DataStoreReference_1tgitw4" targetRef="TextAnnotation_091eyd6" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1jyphas">
+      <bpmndi:BPMNShape id="Participant_087rylc_di" bpmnElement="Participant_087rylc" isHorizontal="true">
+        <dc:Bounds x="129" y="77" width="1041" height="483" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_0w02th3_di" bpmnElement="Lane_0w02th3" isHorizontal="true" bioc:stroke="#b17e00" bioc:fill="#fffdc0" color:background-color="#fffdc0" color:border-color="#b17e00">
+        <dc:Bounds x="159" y="418" width="1011" height="142" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_0aczcvf_di" bpmnElement="Lane_0aczcvf" isHorizontal="true" bioc:stroke="#00b189" bioc:fill="#c0ffe5" color:background-color="#c0ffe5" color:border-color="#00b189">
+        <dc:Bounds x="159" y="250" width="1011" height="168" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_00elh9q_di" bpmnElement="Lane_00elh9q" isHorizontal="true" bioc:stroke="#0063b1" bioc:fill="#c0ebff" color:background-color="#c0ebff" color:border-color="#0063b1">
+        <dc:Bounds x="159" y="77" width="1011" height="173" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_091eyd6_di" bpmnElement="TextAnnotation_091eyd6">
+        <dc:Bounds x="460" y="430" width="230" height="40" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0203h9i_di" bpmnElement="Flow_0203h9i">
+        <di:waypoint x="370" y="480" />
+        <di:waypoint x="430" y="480" />
+        <di:waypoint x="430" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1c17nrf_di" bpmnElement="Flow_1c17nrf">
+        <di:waypoint x="1000" y="480" />
+        <di:waypoint x="1062" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1nl06gx_di" bpmnElement="Flow_1nl06gx">
+        <di:waypoint x="712" y="330" />
+        <di:waypoint x="972" y="330" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="794" y="294" width="49" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02c1j3g_di" bpmnElement="Flow_02c1j3g">
+        <di:waypoint x="687" y="355" />
+        <di:waypoint x="687" y="480" />
+        <di:waypoint x="900" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="739" y="463" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ylgxvn_di" bpmnElement="Flow_1ylgxvn">
+        <di:waypoint x="687" y="305" />
+        <di:waypoint x="687" y="90" />
+        <di:waypoint x="320" y="90" />
+        <di:waypoint x="320" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="493" y="96" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0sxycjs_di" bpmnElement="Flow_0sxycjs">
+        <di:waypoint x="480" y="330" />
+        <di:waypoint x="662" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09heyrt_di" bpmnElement="Flow_09heyrt">
+        <di:waypoint x="320" y="200" />
+        <di:waypoint x="320" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mhfay6_di" bpmnElement="Flow_0mhfay6">
+        <di:waypoint x="228" y="160" />
+        <di:waypoint x="270" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="start-request" bioc:stroke="#3f51b5" bioc:fill="#d4d8ff" color:background-color="#d4d8ff" color:border-color="#3f51b5">
+        <dc:Bounds x="192" y="142" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0zjmlex_di" bpmnElement="fillHolidayForm" bioc:stroke="#7c3c05" bioc:fill="#fff0d4" color:background-color="#fff0d4" color:border-color="#7c3c05">
+        <dc:Bounds x="270" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0odwm33_di" bpmnElement="validateHolidayForm" bioc:stroke="#7c3c05" bioc:fill="#fff0d4" color:background-color="#fff0d4" color:border-color="#7c3c05">
+        <dc:Bounds x="380" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1pnsfhj_di" bpmnElement="Event_10z1iqd" bioc:stroke="#af4c4c" bioc:fill="#ffd7d4" color:background-color="#ffd7d4" color:border-color="#af4c4c">
+        <dc:Bounds x="972" y="312" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1krynfu_di" bpmnElement="Event_1krynfu" bioc:stroke="#4caf50" bioc:fill="#c8ffca" color:background-color="#c8ffca" color:border-color="#4caf50">
+        <dc:Bounds x="1062" y="462" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_08emvlu_di" bpmnElement="sendEmail" bioc:stroke="#690d8e" bioc:fill="#f6e6ff" color:background-color="#f6e6ff" color:border-color="#690d8e">
+        <dc:Bounds x="900" y="440" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0ogslrl_di" bpmnElement="Gateway_0ogslrl" isMarkerVisible="true" bioc:stroke="#8e810d" bioc:fill="#f9ffd4" color:background-color="#f9ffd4" color:border-color="#8e810d">
+        <dc:Bounds x="662" y="305" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStoreReference_1tgitw4_di" bpmnElement="DataStoreReference_1tgitw4" bioc:stroke="#06afb4" bioc:fill="#e6fff6" color:background-color="#e6fff6" color:border-color="#06afb4">
+        <dc:Bounds x="615" y="485" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_06klk8n_di" bpmnElement="selectResponsible" bioc:stroke="#690d8e" bioc:fill="#f6e6ff" color:background-color="#f6e6ff" color:border-color="#690d8e">
+        <dc:Bounds x="270" y="440" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_0dnydsp_di" bpmnElement="TextAnnotation_0dnydsp">
+        <dc:Bounds x="730" y="110" width="260" height="68" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_00q8h4d_di" bpmnElement="Association_00q8h4d">
+        <di:waypoint x="695" y="313" />
+        <di:waypoint x="752" y="178" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Association_0f8y1iw_di" bpmnElement="Association_0f8y1iw">
+        <di:waypoint x="615" y="502" />
+        <di:waypoint x="575" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_1osq9b0_di" bpmnElement="DataOutputAssociation_1osq9b0">
+        <di:waypoint x="900" y="486" />
+        <di:waypoint x="665" y="508" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

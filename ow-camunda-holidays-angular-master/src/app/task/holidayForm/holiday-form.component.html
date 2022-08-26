@@ -1,0 +1,32 @@
+<section *ngIf="isLoading === false">
+  <mat-card *ngIf="rejected">
+    <mat-card-title class="mat-card-header-reject" translate="hf-rejected"></mat-card-title>
+  </mat-card>
+  <mat-card>
+    <mat-card-title translate="Fill holidays request"></mat-card-title>
+    <mat-card-subtitle>
+      <span translate="Task ID"></span>
+      {{ task.id }}
+    </mat-card-subtitle>
+    <mat-form-field appearance="fill">
+      <mat-label translate="Enter a date range"></mat-label>
+      <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+        <input formControlName="start" matStartDate placeholder="Fecha de inicio" />
+        <input formControlName="end" matEndDate placeholder="Fecha de fin" />
+      </mat-date-range-input>
+      <mat-hint>DD/MM/YYYY – DD/MM/YYYY</mat-hint>
+      <mat-datepicker-toggle [for]="picker" matSuffix></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
+    </mat-form-field>
+    <mat-card-actions align="end">
+      <button
+        (click)="submitForm()"
+        color="primary"
+        mat-button
+        mat-raised-button
+        mat-ripple
+        translate="Request holidays"
+      ></button>
+    </mat-card-actions>
+  </mat-card>
+</section>

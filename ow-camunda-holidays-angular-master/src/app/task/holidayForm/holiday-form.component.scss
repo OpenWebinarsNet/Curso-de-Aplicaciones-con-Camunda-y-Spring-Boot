@@ -1,0 +1,22 @@
+mat-card {
+  padding-bottom: 2rem;
+  margin-bottom: 5rem;
+}
+
+.mat-card-header-reject {
+  background-color: #ff3399;
+  color: #ffe7f3;
+}
+
+mat-card-title,
+mat-card-actions {
+  padding: 2rem;
+}
+
+.mat-card {
+  padding: 0;
+}
+
+.mat-card-content {
+  padding: 2rem;
+}

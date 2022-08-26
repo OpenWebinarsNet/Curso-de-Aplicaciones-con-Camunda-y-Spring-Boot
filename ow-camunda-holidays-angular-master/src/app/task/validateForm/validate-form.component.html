@@ -1,0 +1,39 @@
+<section *ngIf="isLoading === false">
+  <mat-card>
+    <mat-card-title translate="Validate holidays request"></mat-card-title>
+    <mat-card-subtitle>
+      {{ variables['initiatorInfo']['value'] }}
+      <span translate="validate-subtitle"></span>
+    </mat-card-subtitle>
+    <p>
+      <span>Fecha de inicio:</span>
+      {{ startDate.format('DD/MM/YYYY') }}
+    </p>
+    <p>
+      <span>Fecha de fin:</span>
+      {{ endDate.format('DD/MM/YYYY') }}
+    </p>
+    <hr />
+    <p class="justify-text">Como su responsable de departamento puedes:</p>
+    <mat-button-toggle-group [formControl]="validateOptions" aria-label="Favorite Color" required>
+      <mat-button-toggle matTooltip="se devolverá al solicitante" value="reject"
+        >Rechazar la solicitud
+      </mat-button-toggle>
+      <mat-button-toggle matTooltip="se cancelará inmediatamente" value="deny">Denegar la solicitud </mat-button-toggle>
+      <mat-button-toggle matTooltip="se aprobará inmediatamente" value="accept"
+        >Aceptar la solicitud
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    <mat-card-actions align="end">
+      <button
+        (click)="submitForm()"
+        [disabled]="validateOptions.valid === false"
+        color="primary"
+        mat-button
+        mat-raised-button
+        mat-ripple
+        translate="confirm-selection"
+      ></button>
+    </mat-card-actions>
+  </mat-card>
+</section>

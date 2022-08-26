@@ -1,0 +1,15 @@
+<main class="mat-typography container" fxLayout="row" fxLayoutAlign="space-around center">
+  <app-loader [isLoading]="isLoading" [size]="1.5"></app-loader>
+  <section *ngIf="isLoading === false">
+    <app-camunda-form-holiday-request
+      *ngIf="task.formKey === 'holiday-form'"
+      [isLoading]="isLoading"
+      [task]="task"
+    ></app-camunda-form-holiday-request>
+    <app-camunda-form-validate-request
+      *ngIf="task.formKey === 'validate-holiday-form'"
+      [isLoading]="isLoading"
+      [task]="task"
+    ></app-camunda-form-validate-request>
+  </section>
+</main>

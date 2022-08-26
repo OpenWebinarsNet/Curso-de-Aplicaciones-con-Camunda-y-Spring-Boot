@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: camunda
+    password: camunda-change-me
+    url: jdbc:postgresql://localhost:15432/camunda-db
+    # url: jdbc:postgresql://camunda-db:5432/camunda-db
+
+camunda:
+  bpm:
+    authorization:
+      enabled: true
+    admin-user:
+      id: admin
+      password: admin
+    deployment-resource-pattern: classpath:processes/*.bpmn, classpath:processes/*.dmn, classpath:processes/*.cmmn
+  initializer:
+    populate: classpath:populate/users.csv
+  rest-api:
+    jwt:
+      secret-path: ./src/main/resources/secrets/jwt.pub
+      # secret-path: /secret/jwt.pub
+      validator-class: net.openwebinars.camunda.config.ValidatorJwt

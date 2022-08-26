@@ -1,0 +1,25 @@
+<main class="mat-typography container" fxLayout="row" fxLayoutAlign="space-around center">
+  <app-loader [isLoading]="isLoading" [size]="1.5"></app-loader>
+  <section *ngIf="isLoading === false">
+    <mat-card *ngFor="let definition of definitions; let i = index" class="ow-card">
+      <mat-card-title>{{ definition.name }}</mat-card-title>
+      <mat-card-subtitle>
+        <span translate="Definition Version"></span>
+        {{ definition.version }}
+      </mat-card-subtitle>
+      <mat-card-content>
+        <ng-container *ngIf="definition.key === 'holidayRequest'">
+          <fa-icon [fixedWidth]="true" [icon]="faUmbrellaBeach" size="8x"></fa-icon>
+        </ng-container>
+      </mat-card-content>
+      <mat-card-actions>
+        <button
+          (click)="startInstance(definition.key)"
+          mat-raised-button
+          mat-ripple
+          translate="Start Instance"
+        ></button>
+      </mat-card-actions>
+    </mat-card>
+  </section>
+</main>

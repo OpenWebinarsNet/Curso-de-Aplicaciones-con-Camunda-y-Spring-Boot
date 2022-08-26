@@ -1,0 +1,39 @@
+<main class="mat-typography container" fxLayout="row" fxLayoutAlign="space-around center">
+  <app-loader [isLoading]="isLoading" [message]="'Cargando resultados, un momento...'" [size]="1.5"></app-loader>
+  <section *ngIf="isLoading === false && tasks.length === 0">
+    <mat-card class="ow-card">
+      <mat-card-title translate="tl-notask-title"></mat-card-title>
+      <mat-card-content></mat-card-content>
+    </mat-card>
+  </section>
+  <table *ngIf="isLoading === false && tasks.length > 0" [dataSource]="tasks" class="mat-elevation-z8" mat-table>
+    <ng-container matColumnDef="initiatorInfo">
+      <th *matHeaderCellDef mat-header-cell translate="tl-initiator"></th>
+      <td *matCellDef="let element" mat-cell>{{ element.initiatorInfo }}</td>
+    </ng-container>
+    <ng-container matColumnDef="name">
+      <th *matHeaderCellDef mat-header-cell translate="tl-name"></th>
+      <td *matCellDef="let element" mat-cell>{{ element.name }}</td>
+    </ng-container>
+    <ng-container matColumnDef="created">
+      <th *matHeaderCellDef mat-header-cell translate="tl-date"></th>
+      <td *matCellDef="let element" mat-cell>{{ element.created }}</td>
+    </ng-container>
+    <ng-container matColumnDef="button">
+      <th *matHeaderCellDef mat-header-cell translate="tl-complete"></th>
+      <td *matCellDef="let element" mat-cell>
+        <button
+          color="primary"
+          mat-button
+          mat-raised-button
+          mat-ripple
+          routerLink="/task/{{ element.processInstanceId }}"
+          routerLinkActive="active"
+          translate="tl-complete"
+        ></button>
+      </td>
+    </ng-container>
+    <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+    <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+  </table>
+</main>

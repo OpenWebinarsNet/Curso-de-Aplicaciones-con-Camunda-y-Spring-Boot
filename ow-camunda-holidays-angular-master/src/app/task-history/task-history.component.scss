@@ -1,0 +1,33 @@
+.container {
+  text-align: center;
+  padding: 1rem;
+}
+
+.mat-icon {
+  vertical-align: middle;
+}
+
+section {
+  width: 100%;
+}
+
+mat-card {
+  padding-bottom: 2rem;
+  margin-bottom: 1rem;
+  text-align: justify;
+}
+
+mat-card-subtitle {
+  color: #ffe7f3;
+  text-align: right;
+  padding: 1rem;
+  border-radius: 2rem;
+}
+
+mat-card-subtitle.denied {
+  background-color: #c10000;
+}
+
+mat-card-subtitle.approved {
+  background-color: #057a62;
+}

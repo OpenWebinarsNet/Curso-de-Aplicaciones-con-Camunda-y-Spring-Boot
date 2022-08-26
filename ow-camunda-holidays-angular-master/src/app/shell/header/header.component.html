@@ -1,0 +1,36 @@
+<mat-toolbar class="mat-elevation-z6 navbar" color="primary">
+  <div fxHide.gt-sm fxLayoutAlign="start center">
+    <button (click)="sidenav.toggle()" class="menu-button" mat-icon-button>
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span class="title">{{ title }}</span>
+  </div>
+  <div fxHide.lt-md>
+    <a class="brand" href="/home" translate="APP_NAME"></a>
+    <button mat-button routerLink="/home" routerLinkActive="active">
+      <mat-icon>home</mat-icon>
+      <span translate="Home"></span>
+    </button>
+    <button mat-button routerLink="/list" routerLinkActive="active">
+      <mat-icon>info</mat-icon>
+      <span translate="Task List"></span>
+    </button>
+    <button mat-button routerLink="/history" routerLinkActive="active">
+      <mat-icon>info</mat-icon>
+      <span translate="title-task-history"></span>
+    </button>
+  </div>
+  <span fxFlex></span>
+  <button [matMenuTriggerFor]="userMenu" mat-icon-button>
+    <mat-icon>person</mat-icon>
+  </button>
+  <mat-menu #userMenu="matMenu">
+    <mat-list>
+      <mat-list-item>
+        <span translate="Logged in as"></span>&nbsp; <b>{{ username }}</b>
+      </mat-list-item>
+      <mat-divider></mat-divider>
+    </mat-list>
+    <button (click)="logout()" mat-menu-item translate="Logout"></button>
+  </mat-menu>
+</mat-toolbar>

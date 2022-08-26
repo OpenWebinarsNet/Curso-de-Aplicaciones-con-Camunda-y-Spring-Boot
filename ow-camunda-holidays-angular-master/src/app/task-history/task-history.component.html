@@ -1,0 +1,65 @@
+<main class="mat-typography container" fxLayout="row" fxLayoutAlign="space-around center">
+  <app-loader [isLoading]="isLoading" [size]="1.5"></app-loader>
+  <section *ngIf="isLoading === false && instances.length === 0">
+    <mat-card class="ow-card">
+      <mat-card-title translate="th-noinstance-title"></mat-card-title>
+      <mat-card-content></mat-card-content>
+    </mat-card>
+  </section>
+  <section *ngIf="isLoading === false && instances.length > 0">
+    <mat-card *ngFor="let instance of instances; let i = index" class="ow-card">
+      <mat-card-title>{{ instance.processDefinitionName }}</mat-card-title>
+      <mat-card-subtitle [ngClass]="{ approved: instance['approved'], denied: !instance['approved'] }">
+        <span *ngIf="instance['approved']" translate="holiday-approved"></span>
+        <span *ngIf="!instance['approved']" translate="holiday-denied"></span>
+      </mat-card-subtitle>
+      <mat-card-content>
+        <div fxFlex>
+          <ng-container *ngIf="instance.processDefinitionKey === 'holidayRequest'">
+            <fa-icon [fixedWidth]="true" [icon]="faUmbrellaBeach" size="4x"></fa-icon>
+          </ng-container>
+        </div>
+        <div fxFlex>
+          <p>
+            <span translate="th-start-request"></span>
+            {{ instance.startTime }}
+          </p>
+          <p>
+            <span translate="th-end-request"></span>
+            {{ instance.endTime }}
+          </p>
+        </div>
+        <div fxFlex>
+          <p>
+            <span translate="th-start-holiday"></span>
+            {{ instance['holidayFrom'].format('DD/MM/YYYYY') }}
+          </p>
+          <p>
+            <span translate="th-end-holiday"></span>
+            {{ instance['holidayTo'].format('DD/MM/YYYYY') }}
+          </p>
+        </div>
+        <div fxFlex>
+          <p>
+            <span translate="th-initiator"></span>
+            {{ instance['initiatorInfo'] }}
+          </p>
+          <p>
+            <span translate="th-email"></span>
+            {{ instance['initiatorEmail'] }}
+          </p>
+        </div>
+        <div fxFlex>
+          <p>
+            <span translate="th-validator"></span>
+            {{ instance['validatorInfo'] }}
+          </p>
+          <p>
+            <span translate="th-email"></span>
+            {{ instance['validatorEmail'] }}
+          </p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </section>
+</main>
